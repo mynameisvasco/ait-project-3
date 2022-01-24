@@ -3,8 +3,9 @@ import gzip
 import os
 from pathlib import Path
 
+
 signatures = dict()
-compressed = dict()
+ncd = dict()
 
 
 def parse_args():
@@ -22,20 +23,25 @@ def get_signature(path: Path):
         return file.read()
 
 
+def calculate_ncd(item1: str, item2: str, compressor=gzip):
+    item1_compressed = compressor.compress(item1)
+    item2_compressed = compressor.compress(item2)
+    concatenated = item1 + item2
+    concatenated_compression = gzip.compress(concatenated)
+    return (len(concatenated_compression) - min(len(item1_compressed), len(item2_compressed))) / \
+        max(len(item1_compressed), len(item2_compressed))
+
+
 if __name__ == "__main__":
     args = parse_args()
 
     target_signature = get_signature(args.target)
-
-    print(len(target_signature))
+    target_compressed = gzip.compress(target_signature)
 
     for path in Path("datasets").rglob("*.wav"):
         signatures[os.path.basename(path)] = get_signature(path)
 
-    min_len = len(min(signatures.items(), key=lambda i: len(i[1]))[1])
-
     for (file_name, signature) in signatures.items():
-        combined_signature = signature[0:min_len] + target_signature
-        compressed[file_name] = len(gzip.compress(combined_signature))
+        ncd[file_name] = calculate_ncd(signature, target_signature, gzip)
 
-    print(compressed)
+    print(min(ncd.items(), key=lambda n: n[1]))
