@@ -1,5 +1,7 @@
 from argparse import ArgumentParser
 import gzip
+import lzma
+import bz2
 import os
 from pathlib import Path
 
@@ -12,6 +14,8 @@ def parse_args():
     arg_parser = ArgumentParser()
     arg_parser.add_argument("--dataset", required=True, type=str)
     arg_parser.add_argument("--target", required=True, type=str)
+    arg_parser.add_argument("--compression", required=False, type=str,
+                            choices=['gzip', 'bzip2', 'lzma'])
     return arg_parser.parse_args()
 
 
@@ -22,6 +26,7 @@ def get_signature(path: Path):
     if Path(f"tmp/{base_name}.freqs").exists():
         with open(f"tmp/{base_name}.freqs", "rb") as file:
             return file.read()
+
 
 def calculate_ncd(item1: str, item2: str, compressor=gzip):
     item1_compressed = compressor.compress(item1)
@@ -34,6 +39,14 @@ def calculate_ncd(item1: str, item2: str, compressor=gzip):
 
 if __name__ == "__main__":
     args = parse_args()
+
+    if args.compression == "bzip2":
+        compressor = bz2
+    else:
+        if args.compression == "lzma":
+            compressor = lzma
+        else:
+            compressor = gzip
 
     target_signature = get_signature(args.target)
     target_compressed = gzip.compress(target_signature)

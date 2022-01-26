@@ -6,8 +6,9 @@ from csv import writer
 
 # generates results for all testsets in the "testsets" folder, each subfolder
 # should contain a set of songs from the "datasets" folder with the same
-# names and processed with a different parameter combination, and their
-# containing folder should have a name of the form "[segment_length]_[segment_start]_[noise_level]_[noise_type]_[compression_type]"
+# names and processed with a different parameter combination, and the subfolder
+# should have a name of the form:
+# "[segment_length]_[segment_start]_[noise_level]_[noise_type]_[compression_type]"
 
 with open("results.csv", "w", newline='') as results_file:
     csv_writer = writer(results_file)
@@ -30,8 +31,9 @@ for parameter_set_dir in Path("testsets").iterdir():
         target_name = path.basename(target_file).split('.')[0]
 
         output = check_output(["python", "./src/main.py",
-                                          "--dataset", "dasd", "--target",
-                                          target_file])
+                               "--dataset", "dasd",
+                               "--target", target_file,
+                               "--compression", compression_type])
 
         predicted_name = path.basename(
             search("\('(.*)\.wav", str(output)).group(1))
