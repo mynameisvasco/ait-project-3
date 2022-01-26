@@ -28,11 +28,11 @@ def get_signature(path: Path):
             return file.read()
 
 
-def calculate_ncd(item1: str, item2: str, compressor=gzip):
+def calculate_ncd(item1: str, item2: str, compressor):
     item1_compressed = compressor.compress(item1)
     item2_compressed = compressor.compress(item2)
     concatenated = item1 + item2
-    concatenated_compression = gzip.compress(concatenated)
+    concatenated_compression = compressor.compress(concatenated)
     return (len(concatenated_compression) - min(len(item1_compressed), len(item2_compressed))) / \
         max(len(item1_compressed), len(item2_compressed))
 
@@ -49,12 +49,12 @@ if __name__ == "__main__":
             compressor = gzip
 
     target_signature = get_signature(args.target)
-    target_compressed = gzip.compress(target_signature)
+    target_compressed = compressor.compress(target_signature)
 
     for path in Path(args.dataset).rglob("*.wav"):
         signatures[os.path.basename(path)] = get_signature(path)
 
     for (file_name, signature) in signatures.items():
-        ncd[file_name] = calculate_ncd(signature, target_signature, gzip)
+        ncd[file_name] = calculate_ncd(signature, target_signature, compressor)
 
     print(min(ncd.items(), key=lambda n: n[1]))

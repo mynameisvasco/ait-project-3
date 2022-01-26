@@ -12,7 +12,7 @@ else:
 
 for segment_length in [5, 30]:
     for segment_start in [30, 120]:
-        for noise_level in [0.2, 0.8]:
+        for noise_level in [0.2, 0.9]:
             for noise_type in ["whitenoise", "brownnoise", "pinknoise"]:
 
                 testset_dir = f"testsets/{segment_length}_{segment_start}_{noise_level}_{noise_type}"
