@@ -8,7 +8,7 @@ from csv import writer
 # should contain a set of songs from the "datasets" folder with the same
 # names and processed with a different parameter combination, and the subfolder
 # should have a name of the form:
-# "[segment_length]_[segment_start]_[noise_level]_[noise_type]_[compression_type]"
+# "[segment_length]_[segment_start]_[noise_level]_[noise_type]"
 
 with open("results.csv", "w", newline='') as results_file:
     csv_writer = writer(results_file)
@@ -24,27 +24,29 @@ for parameter_set_dir in Path("testsets").iterdir():
     segment_start = test_parameters[1]
     noise_level = test_parameters[2]
     noise_type = test_parameters[3]
-    compression_type = test_parameters[4]
 
-    accuracy_count, total_count = 0, 0
-    for target_file in Path(parameter_set_dir).rglob("*.wav"):
+    for compression_type in ["gzip", "bzip2", "lzma"]:
 
-        target_name = path.basename(target_file).split('.')[0]
+        accuracy_count, total_count = 0, 0
+        for target_file in Path(parameter_set_dir).rglob("*.wav"):
 
-        output = check_output(["python", "./src/main.py",
-                               "--dataset", "datasets",
-                               "--target", target_file,
-                               "--compression", compression_type])
+            target_name = path.basename(target_file).split('.')[0]
 
-        predicted_name = path.basename(
-            search("\('(.*)\.wav", str(output)).group(1))
+            output = check_output(["python", "./src/main.py",
+                                   "--dataset", "datasets",
+                                   "--target", target_file,
+                                   "--compression", compression_type])
 
-        accuracy_count += predicted_name == target_name
-        total_count += 1
+            predicted_name = path.basename(
+                search("\('(.*)\.wav", str(output)).group(1))
 
-    accuracy = accuracy_count / total_count
+            accuracy_count += predicted_name == target_name
+            total_count += 1
 
-    with open("results.csv", "a", newline='') as results_file:
-        csv_writer = writer(results_file)
-        csv_writer.writerow([segment_length, segment_start, noise_level,
-                             noise_type, compression_type, f"{accuracy:.2%}"])
+        accuracy = accuracy_count / total_count
+
+        with open("results.csv", "a", newline='') as results_file:
+            csv_writer = writer(results_file)
+            csv_writer.writerow([segment_length, segment_start, noise_level,
+                                 noise_type, compression_type,
+                                 f"{accuracy:.2%}"])
