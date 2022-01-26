@@ -51,7 +51,7 @@ if __name__ == "__main__":
     target_signature = get_signature(args.target)
     target_compressed = gzip.compress(target_signature)
 
-    for path in Path("datasets").rglob("*.wav"):
+    for path in Path(args.dataset).rglob("*.wav"):
         signatures[os.path.basename(path)] = get_signature(path)
 
     for (file_name, signature) in signatures.items():

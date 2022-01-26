@@ -12,8 +12,9 @@ from csv import writer
 
 with open("results.csv", "w", newline='') as results_file:
     csv_writer = writer(results_file)
-    csv_writer.writerow(["Segment Length", "Segment Start", "Noise Level",
-                         "Noise Type", "Compression Type", "Accuracy"])
+    csv_writer.writerow(["Segment Length (s)", "Segment Start (s)",
+                         "Noise Level", "Noise Type", "Compression Type",
+                         "Accuracy"])
 
 for parameter_set_dir in Path("testsets").iterdir():
 
@@ -31,7 +32,7 @@ for parameter_set_dir in Path("testsets").iterdir():
         target_name = path.basename(target_file).split('.')[0]
 
         output = check_output(["python", "./src/main.py",
-                               "--dataset", "dasd",
+                               "--dataset", "datasets",
                                "--target", target_file,
                                "--compression", compression_type])
 
