@@ -19,9 +19,9 @@ def get_signature(path: Path):
     base_name = os.path.basename(path)
     os.system(f"./bin/GetMaxFreqs -w tmp/{base_name}.freqs {path}")
 
-    with open(f"tmp/{base_name}.freqs", "rb") as file:
-        return file.read()
-
+    if Path(f"tmp/{base_name}.freqs").exists():
+        with open(f"tmp/{base_name}.freqs", "rb") as file:
+            return file.read()
 
 def calculate_ncd(item1: str, item2: str, compressor=gzip):
     item1_compressed = compressor.compress(item1)
